@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Which UWC Dilijan Toon Are You?</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f2ec; color: #222;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 28px 18px 50px; }
+  .card {
+    background: white; border-radius: 18px; padding: 28px;
+    margin: 18px 0; box-shadow: 0 4px 18px rgba(0,0,0,.08);
+  }
+  h1 { margin-top: 0; font-size: 32px; }
+  h2 { font-size: 20px; margin-top: 0; }
+  .sub { color: #666; line-height: 1.5; }
+  label {
+    display: block; padding: 13px 15px; margin: 9px 0;
+    border: 1px solid #ddd; border-radius: 12px; cursor: pointer;
+    transition: .15s;
+  }
+  label:hover { background: #f7f7f7; }
+  input { margin-right: 10px; }
+  button {
+    width: 100%; padding: 15px; border: 0; border-radius: 12px;
+    background: #222; color: white; font-size: 17px; cursor: pointer;
+  }
+  button:hover { opacity: .88; }
+  #result { display: none; text-align: center; }
+  .toon { font-size: 42px; font-weight: 800; margin: 12px 0; }
+  .desc { font-size: 17px; line-height: 1.6; color: #444; }
+  .score { text-align: left; margin-top: 22px; }
+  .bar { background: #eee; border-radius: 99px; overflow: hidden; height: 12px; margin: 5px 0 12px; }
+  .fill { height: 100%; background: #333; }
+  .error { color: #a00; margin: 12px 0; display: none; }
+  .restart { margin-top: 14px; background: #777; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Which UWC Dilijan Toon Are You?</h1>
+    <p class="sub">13 questions. Zero scientific validity. Extremely important results.</p>
+  </div>
+
+  <form id="quiz"></form>
+
+  <div id="error" class="error">Answer every question before submitting.</div>
+  <button id="submit" type="button">Reveal My Toon</button>
+
+  <div id="result" class="card">
+    <div>Your Toon is:</div>
+    <div class="toon" id="resultName"></div>
+    <div class="desc" id="resultDesc"></div>
+    <div class="score" id="scores"></div>
+    <button class="restart" type="button" onclick="location.reload()">Take Again</button>
+  </div>
+</div>
+
+<script>
+const houses = {
+  AGHSTEV: {
+    emoji: "🌀",
+    desc: "Warnings, beautiful rooms, wildly mixed personalities, and a social life that is somehow exactly 50%. You may not all be bonded, but your room probably looks suspiciously good."
+  },
+  ARPA: {
+    emoji: "🌈",
+    desc: "Gay chaos, pranks, relationships, questionable decisions, and approximately 70% social battery. Somehow there is always lore."
+  },
+  Debed: {
+    emoji: "🌿",
+    desc: "Street-smart, adaptable, plant-friendly, and mysteriously close to the toon parent. You know how things actually work around here."
+  },
+  Lalvar: {
+    emoji: "🏃",
+    desc: "Sporty, book-smart, well-behaved-ish, and deeply invested in roommate bonding. You somehow manage to be productive while everyone else is losing it."
+  },
+  Maymekh: {
+    emoji: "📚",
+    desc: "Responsible, relatively chill, independently functioning, and home to a wonderfully random collection of personalities. Social life is optional."
+  },
+  Vardenis: {
+    emoji: "🐆",
+    desc: "The party house. Extremely social, aggressively bonded, and somehow capable of turning house pride into a full-time personality."
+  }
+};
+
+const questions = [
+  {
+    q: "It’s Friday night. What are you most likely doing?",
+    a: [
+      ["Somehow ending up in a room with 12 people, talking until 2 AM.", "Vardenis"],
+      ["Chilling with my roommate and doing something stupid for entertainment.", "ARPA"],
+      ["Going out, playing something, or joining whatever social thing is happening.", "Lalvar"],
+      ["Staying in, getting my life together, and enjoying the peace.", "Maymekh"]
+    ]
+  },
+  {
+    q: "It’s inspection day and you get a warning. Your reaction?",
+    a: [
+      ["Okay, fair. I’ll fix it.", "Maymekh"],
+      ["WHO SNITCHED?", "ARPA"],
+      ["Laugh, clean it eventually, and somehow turn it into a house joke.", "AGHSTEV"],
+      ["I’m already making sure this never happens again.", "Lalvar"]
+    ]
+  },
+  {
+    q: "Your ideal roommate situation is…",
+    a: [
+      ["We become inseparable and know everything about each other.", "Vardenis"],
+      ["We respect each other’s space but occasionally have chaotic moments together.", "Maymekh"],
+      ["We have completely different personalities but somehow make it work.", "AGHSTEV"],
+      ["We bond over doing things together — sports, studying, going places, etc.", "Lalvar"]
+    ]
+  },
+  {
+    q: "Someone says: “There’s a party tonight.” Your immediate thought is:",
+    a: [
+      ["Obviously I’m going.", "Vardenis"],
+      ["Who’s going? 👀", "ARPA"],
+      ["Maybe. Depends how tired I am.", "Maymekh"],
+      ["I have approximately 17 things I need to do.", "Debed"]
+    ]
+  },
+  {
+    q: "You get an unexpected free afternoon. What do you do?",
+    a: [
+      ["Find people and do something spontaneous.", "ARPA"],
+      ["Read, study, or finally finish something I’ve been procrastinating.", "Maymekh"],
+      ["Go outside and actually do something — preferably involving movement.", "Lalvar"],
+      ["Stay around the house and see what happens.", "AGHSTEV"]
+    ]
+  },
+  {
+    q: "Your house suddenly needs someone to organize something. You…",
+    a: [
+      ["Somehow end up being responsible for it.", "Maymekh"],
+      ["Help, but mostly because someone convinced me to.", "ARPA"],
+      ["Take charge because otherwise this is going to be a disaster.", "Debed"],
+      ["Ask five people what they think first.", "AGHSTEV"]
+    ]
+  },
+  {
+    q: "What would your house group chat most likely look like?",
+    a: [
+      ["400 messages, 60 inside jokes, 3 arguments, and someone asking where everyone is.", "Vardenis"],
+      ["Mostly practical information with occasional chaos.", "Maymekh"],
+      ["Constant plans, jokes, photos, and people trying to get everyone together.", "ARPA"],
+      ["Completely unpredictable. Nobody knows what is happening, including the people sending them.", "AGHSTEV"]
+    ]
+  },
+  {
+    q: "You discover your house has a weird tradition. You:",
+    a: [
+      ["Immediately participate. The weirder, the better.", "ARPA"],
+      ["Ask why we do this and then participate anyway.", "Debed"],
+      ["Respectfully maintain the tradition because it’s part of the house identity.", "Vardenis"],
+      ["Forget about it until someone reminds you.", "Maymekh"]
+    ]
+  },
+  {
+    q: "You walk into someone’s room and find…",
+    a: [
+      ["Plants everywhere. Somehow they’re all alive.", "Debed"],
+      ["A suspiciously organized desk and three textbooks open.", "Lalvar"],
+      ["Absolute chaos, but the person somehow knows where everything is.", "ARPA"],
+      ["A surprisingly nice room that looks like someone actually put effort into it.", "AGHSTEV"]
+    ]
+  },
+  {
+    q: "What’s your biggest contribution to a house?",
+    a: [
+      ["Energy. If I’m there, something is probably happening.", "Vardenis"],
+      ["Keeping everyone functioning and reminding people what they’re supposed to be doing.", "Maymekh"],
+      ["Making people feel connected and actually creating a house community.", "Debed"],
+      ["Being the person who knows how to deal with random situations.", "Lalvar"]
+    ]
+  },
+  {
+    q: "Pick the sentence that sounds most like you:",
+    a: [
+      ["We may be dysfunctional, but we’re our dysfunction.", "AGHSTEV"],
+      ["I don’t need everyone to be my best friend, but I need my people.", "Debed"],
+      ["Rules are important. Also, rules can sometimes be interpreted creatively.", "ARPA"],
+      ["I somehow know what’s going on in this place even when nobody else does.", "Lalvar"]
+    ]
+  },
+  {
+    q: "Your house wins an inter-house competition. What happens next?",
+    a: [
+      ["We’re celebrating until someone tells us to go to bed.", "Vardenis"],
+      ["Someone immediately starts planning the next competition.", "Lalvar"],
+      ["We make the victory into a house-wide identity for the next six months.", "Vardenis"],
+      ["We celebrate, take pictures, and then go back to whatever we were doing.", "AGHSTEV"]
+    ]
+  },
+  {
+    q: "If you were an animal, which one would you be?",
+    a: [
+      ["🐆 Leopard — confident, social, slightly dangerous, and somehow always involved in something.", "Vardenis"],
+      ["🦊 Fox — clever, adaptable, street-smart, and probably operating on a plan nobody else knows.", "Debed"],
+      ["🐕 Golden retriever — loyal, energetic, friendly, and happiest when surrounded by your people.", "Lalvar"],
+      ["🐈 Cat — independent, selectively social, and perfectly capable of entertaining yourself.", "Maymekh"]
+    ]
+  }
+];
+
+const quiz = document.getElementById("quiz");
+questions.forEach((item, i) => {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `<h2>${i+1}. ${item.q}</h2>`;
+  item.a.forEach((ans, j) => {
+    card.innerHTML += `
+      <label>
+        <input type="radio" name="q${i}" value="${ans[1]}" required>
+        ${String.fromCharCode(65+j)}. ${ans[0]}
+      </label>`;
+  });
+  quiz.appendChild(card);
+});
+
+document.getElementById("submit").onclick = () => {
+  const answers = [...document.querySelectorAll('input[type="radio"]:checked')];
+  if (answers.length !== questions.length) {
+    document.getElementById("error").style.display = "block";
+    window.scrollTo({top: document.body.scrollHeight, behavior:"smooth"});
+    return;
+  }
+  document.getElementById("error").style.display = "none";
+
+  const scores = {};
+  Object.keys(houses).forEach(h => scores[h] = 0);
+  answers.forEach(a => scores[a.value]++);
+
+  // Tie-breaker: random among tied houses, so nobody gets an arbitrary alphabetical winner.
+  const max = Math.max(...Object.values(scores));
+  const tied = Object.keys(scores).filter(h => scores[h] === max);
+  const winner = tied[Math.floor(Math.random() * tied.length)];
+
+  document.getElementById("resultName").textContent =
+    `${houses[winner].emoji} ${winner}`;
+  document.getElementById("resultDesc").textContent = houses[winner].desc;
+
+  document.getElementById("scores").innerHTML =
+    "<strong>Score breakdown</strong>" +
+    Object.entries(scores)
+      .sort((a,b) => b[1]-a[1])
+      .map(([h,s]) => `<div>${h}: ${s}/13<div class="bar"><div class="fill" style="width:${s/13*100}%"></div></div></div>`)
+      .join("");
+
+  document.getElementById("result").style.display = "block";
+  document.getElementById("result").scrollIntoView({behavior:"smooth"});
+};
+</script>
+</body>
+</html>
